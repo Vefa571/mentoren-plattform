@@ -31,24 +31,32 @@ Deno.serve(async (req) => {
 
     if (callerProfile?.role !== 'admin') return json({ error: 'Kein Zugriff' }, 403)
 
-    const { name, email, password } = await req.json()
+    const { name, email } = await req.json()
 
-    if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
-      return json({ error: 'Name, E-Mail und Passwort (min. 6 Zeichen) erforderlich' }, 400)
+    if (!name?.trim() || !email?.trim()) {
+      return json({ error: 'Name und E-Mail sind erforderlich' }, 400)
     }
 
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: email.trim(),
-      password,
-      email_confirm: true,
-      user_metadata: { name: name.trim(), role: 'mentee' },
-    })
+    const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+      email.trim(),
+      { data: { name: name.trim(), role: 'mentee' } }
+    )
 
     if (error) return json({ error: error.message }, 400)
 
+    if (data.user) {
+      await supabaseAdmin.from('profiles').upsert({
+        id: data.user.id,
+        name: name.trim(),
+        email: email.trim(),
+        role: 'mentee',
+      })
+    }
+
     return json({ user: data.user })
   } catch (e) {
-    return json({ error: 'Serverfehler' }, 500)
+    const msg = e instanceof Error ? e.message : String(e)
+    return json({ error: `Serverfehler: ${msg}` }, 500)
   }
 })
 
