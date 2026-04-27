@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 
 export default function MenteeForm({ onSaved, onCancel }) {
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -12,7 +12,7 @@ export default function MenteeForm({ onSaved, onCancel }) {
     e.preventDefault()
     setError('')
 
-    if (!name.trim() || !email.trim() || password.length < 6) {
+    if (!name.trim() || !username.trim() || password.length < 6) {
       setError('Alle Felder ausfüllen — Passwort mindestens 6 Zeichen.')
       return
     }
@@ -28,7 +28,7 @@ export default function MenteeForm({ onSaved, onCancel }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+        body: JSON.stringify({ name: name.trim(), username: username.trim(), password }),
       }
     )
 
@@ -59,14 +59,15 @@ export default function MenteeForm({ onSaved, onCancel }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Benutzername</label>
           <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="mentee@beispiel.de"
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="z.B. ahmed123"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p className="text-xs text-gray-400 mt-1">Nur Buchstaben, Zahlen, _ und -</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Passwort</label>

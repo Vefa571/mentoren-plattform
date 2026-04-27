@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import MenteeTaskVisibility from './MenteeTaskVisibility'
 
+function getUsername(email) {
+  return email?.replace('@mentoren-plattform.intern', '') ?? email
+}
+
 export default function MenteeOverview({ mentees, tasks, onInvite }) {
   const [logs, setLogs] = useState([])
   const [managingMentee, setManagingMentee] = useState(null)
@@ -67,7 +71,7 @@ export default function MenteeOverview({ mentees, tasks, onInvite }) {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="font-medium text-gray-800">{mentee.name}</p>
-                  <p className="text-xs text-gray-400">{mentee.email}</p>
+                  <p className="text-xs text-gray-400">@{getUsername(mentee.email)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button

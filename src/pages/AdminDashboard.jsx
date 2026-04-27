@@ -65,6 +65,10 @@ export default function AdminDashboard() {
     return type === 'minutes' ? 'Minuten' : 'Seiten'
   }
 
+  function getUsername(email) {
+    return email?.replace('@mentoren-plattform.intern', '') ?? email
+  }
+
   function getHistoryLog(menteeId, taskId) {
     return historyLogs.find(l => l.mentee_id === menteeId && l.task_id === taskId)
   }
@@ -181,7 +185,7 @@ export default function AdminDashboard() {
                 <div key={mentee.id} className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-gray-800">{mentee.name}</p>
-                    <p className="text-sm text-gray-400">{mentee.email}</p>
+                    <p className="text-sm text-gray-400">@{getUsername(mentee.email)}</p>
                   </div>
                   <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Mentee</span>
                 </div>
@@ -238,7 +242,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="font-medium text-gray-800">{mentee.name}</p>
-                          <p className="text-xs text-gray-400">{mentee.email}</p>
+                          <p className="text-xs text-gray-400">@{getUsername(mentee.email)}</p>
                         </div>
                         <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
                           {doneTasks.length}/{tasks.length} erledigt

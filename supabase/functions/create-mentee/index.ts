@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+const DOMAIN = '@mentoren-plattform.intern'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type',
@@ -30,14 +32,21 @@ Deno.serve(async (req) => {
 
     if (callerProfile?.role !== 'admin') return json({ error: 'Kein Zugriff' }, 403)
 
-    const { name, email, password } = await req.json()
+    const { name, username, password } = await req.json()
 
-    if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
-      return json({ error: 'Name, E-Mail und Passwort (min. 6 Zeichen) erforderlich' }, 400)
+    if (!name?.trim() || !username?.trim() || !password || password.length < 6) {
+      return json({ error: 'Name, Benutzername und Passwort (min. 6 Zeichen) erforderlich' }, 400)
     }
 
+    const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '')
+    if (!cleanUsername) {
+      return json({ error: 'Ungültiger Benutzername (nur Buchstaben, Zahlen, _ und -)' }, 400)
+    }
+
+    const email = cleanUsername + DOMAIN
+
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: email.trim(),
+      email,
       password,
       email_confirm: true,
       user_metadata: { name: name.trim(), role: 'mentee' },
