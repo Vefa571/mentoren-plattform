@@ -1,19 +1,18 @@
 import { useState } from 'react'
 
 export default function TaskCard({ task, log, onSave }) {
-  const [value, setValue] = useState(log?.value ?? '')
+  const [value, setValue] = useState(log?.value ?? 0)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  const progress = log ? Math.min((log.value / task.target_value) * 100, 100) : 0
-  const done = log?.value >= task.target_value
+  const max = task.target_value * 2
+  const progress = Math.min((value / task.target_value) * 100, 100)
+  const done = value >= task.target_value
   const typeLabel = task.type === 'minutes' ? 'Min.' : 'Seiten'
 
   async function handleSave() {
-    const num = parseFloat(value)
-    if (isNaN(num) || num < 0) return
     setSaving(true)
-    await onSave(num)
+    await onSave(Number(value))
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -33,31 +32,43 @@ export default function TaskCard({ task, log, onSave }) {
         )}
       </div>
 
-      <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
-        <div
-          className={`h-1.5 rounded-full transition-all ${done ? 'bg-green-500' : 'bg-blue-500'}`}
-          style={{ width: `${progress}%` }}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-2xl font-bold text-gray-800">{value}</span>
+          <span className="text-sm text-gray-400">{typeLabel} von {task.target_value}</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max={max}
+          step="1"
+          value={value}
+          onChange={e => setValue(Number(e.target.value))}
+          className="w-full h-2 rounded-full appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, ${done ? '#22c55e' : '#3b82f6'} ${progress}%, #e5e7eb ${progress}%)`
+          }}
         />
+        <div className="flex justify-between text-xs text-gray-400 mt-1">
+          <span>0</span>
+          <span className={`font-medium ${done ? 'text-green-600' : 'text-blue-600'}`}>
+            Ziel: {task.target_value}
+          </span>
+          <span>{max}</span>
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <input
-          type="number"
-          min="0"
-          step="0.5"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder={`Wert in ${typeLabel}`}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleSave}
-          disabled={saving || value === ''}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {saving ? '...' : saved ? 'Gespeichert!' : 'Speichern'}
-        </button>
-      </div>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
+          saved
+            ? 'bg-green-500 text-white'
+            : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+        }`}
+      >
+        {saving ? 'Speichern...' : saved ? '✓ Gespeichert' : 'Speichern'}
+      </button>
     </div>
   )
 }
