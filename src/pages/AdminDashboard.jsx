@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import TaskForm from '../components/TaskForm'
 import MenteeOverview from '../components/MenteeOverview'
 import MenteeForm from '../components/MenteeForm'
+import MenteeEditForm from '../components/MenteeEditForm'
 
 const TABS = [
   { id: 'aufgaben', label: 'Aufgaben' },
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [showMenteeForm, setShowMenteeForm] = useState(false)
+  const [editingMentee, setEditingMentee] = useState(null)
   const [activeTab, setActiveTab] = useState('aufgaben')
 
   // Verlauf-State
@@ -67,6 +69,28 @@ export default function AdminDashboard() {
 
   function getUsername(email) {
     return email?.replace('@mentoren-plattform.intern', '') ?? email
+  }
+
+  async function deleteMentee(mentee) {
+    if (!confirm(`${mentee.name} wirklich löschen?`)) return
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/edit-mentee`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ action: 'delete', menteeId: mentee.id }),
+      }
+    )
+    const result = await res.json()
+    if (!res.ok || result.error) {
+      alert('Fehler: ' + (result.error ?? 'Unbekannt'))
+      return
+    }
+    fetchMentees()
   }
 
   function getHistoryLog(menteeId, taskId) {
@@ -182,12 +206,35 @@ export default function AdminDashboard() {
                 <p className="text-gray-400 text-sm text-center py-8">Noch keine Mentees angelegt.</p>
               )}
               {mentees.map(mentee => (
-                <div key={mentee.id} className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-800">{mentee.name}</p>
-                    <p className="text-sm text-gray-400">@{getUsername(mentee.email)}</p>
-                  </div>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Mentee</span>
+                <div key={mentee.id}>
+                  {editingMentee?.id === mentee.id ? (
+                    <MenteeEditForm
+                      mentee={mentee}
+                      onSaved={() => { setEditingMentee(null); fetchMentees() }}
+                      onCancel={() => setEditingMentee(null)}
+                    />
+                  ) : (
+                    <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-800">{mentee.name}</p>
+                        <p className="text-sm text-gray-400">@{getUsername(mentee.email)}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setShowMenteeForm(false); setEditingMentee(mentee) }}
+                          className="text-sm text-amber-600 hover:text-amber-800 px-3 py-1 rounded-lg hover:bg-amber-50 transition-colors"
+                        >
+                          Bearbeiten
+                        </button>
+                        <button
+                          onClick={() => deleteMentee(mentee)}
+                          className="text-sm text-red-500 hover:text-red-700 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                          Löschen
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
