@@ -4,16 +4,16 @@ import { supabase } from '../lib/supabase'
 export default function MenteeForm({ onSaved, onCancel }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
 
-    if (!name.trim() || !email.trim()) {
-      setError('Name und E-Mail ausfüllen.')
+    if (!name.trim() || !email.trim() || password.length < 6) {
+      setError('Alle Felder ausfüllen — Passwort mindestens 6 Zeichen.')
       return
     }
 
@@ -28,7 +28,7 @@ export default function MenteeForm({ onSaved, onCancel }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
       }
     )
 
@@ -40,22 +40,13 @@ export default function MenteeForm({ onSaved, onCancel }) {
       return
     }
 
-    setSuccess(true)
-    setTimeout(onSaved, 2000)
-  }
-
-  if (success) {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-center">
-        <p className="text-green-700 font-medium">Einladung gesendet!</p>
-        <p className="text-green-600 text-sm mt-1">{email} hat eine Einladungs-E-Mail erhalten.</p>
-      </div>
-    )
+    onSaved()
   }
 
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-      <h3 className="font-semibold text-gray-800 mb-4">Mentee einladen</h3>
+      <h3 className="font-semibold text-gray-800 mb-1">Neuen Mentee anlegen</h3>
+      <p className="text-xs text-gray-400 mb-4">Du vergibst die Zugangsdaten — teile sie direkt mit dem Mentee.</p>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -77,7 +68,16 @@ export default function MenteeForm({ onSaved, onCancel }) {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <p className="text-xs text-gray-400">Der Mentee erhält eine Einladungs-E-Mail und legt sein Passwort selbst fest.</p>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+          <input
+            type="text"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Mindestens 6 Zeichen"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -87,7 +87,7 @@ export default function MenteeForm({ onSaved, onCancel }) {
             disabled={saving}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {saving ? 'Senden...' : 'Einladung senden'}
+            {saving ? 'Anlegen...' : 'Mentee anlegen'}
           </button>
           <button
             type="button"
