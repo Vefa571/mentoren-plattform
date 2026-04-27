@@ -191,7 +191,22 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'uebersicht' && (
-          <MenteeOverview mentees={mentees} tasks={tasks} />
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">Übersicht heute</h2>
+              <button
+                onClick={() => { setActiveTab('mentees'); setShowMenteeForm(true) }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                + Mentee einladen
+              </button>
+            </div>
+            <MenteeOverview
+              mentees={mentees}
+              tasks={tasks}
+              onInvite={() => { setActiveTab('mentees'); setShowMenteeForm(true) }}
+            />
+          </div>
         )}
 
         {activeTab === 'verlauf' && (

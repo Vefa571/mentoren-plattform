@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import MenteeTaskVisibility from './MenteeTaskVisibility'
 
-export default function MenteeOverview({ mentees, tasks }) {
+export default function MenteeOverview({ mentees, tasks, onInvite }) {
   const [logs, setLogs] = useState([])
   const [managingMentee, setManagingMentee] = useState(null)
   const today = new Date().toISOString().split('T')[0]
@@ -28,7 +28,19 @@ export default function MenteeOverview({ mentees, tasks }) {
   }
 
   if (mentees.length === 0) {
-    return <p className="text-gray-400 text-sm text-center py-8">Keine Mentees gefunden.</p>
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 text-sm mb-4">Noch keine Mentees eingeladen.</p>
+        {onInvite && (
+          <button
+            onClick={onInvite}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            + Mentee einladen
+          </button>
+        )}
+      </div>
+    )
   }
 
   return (
