@@ -3,10 +3,12 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import TaskForm from '../components/TaskForm'
 import MenteeOverview from '../components/MenteeOverview'
+import MenteeForm from '../components/MenteeForm'
 
 const TABS = [
   { id: 'aufgaben', label: 'Aufgaben' },
-  { id: 'uebersicht', label: 'Mentee-Übersicht' },
+  { id: 'mentees', label: 'Mentees' },
+  { id: 'uebersicht', label: 'Übersicht' },
   { id: 'verlauf', label: 'Verlauf' },
 ]
 
@@ -16,6 +18,7 @@ export default function AdminDashboard() {
   const [mentees, setMentees] = useState([])
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
+  const [showMenteeForm, setShowMenteeForm] = useState(false)
   const [activeTab, setActiveTab] = useState('aufgaben')
 
   // Verlauf-State
@@ -143,6 +146,44 @@ export default function AdminDashboard() {
                       Löschen
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'mentees' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">Mentees ({mentees.length})</h2>
+              <button
+                onClick={() => setShowMenteeForm(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                + Mentee anlegen
+              </button>
+            </div>
+
+            {showMenteeForm && (
+              <div className="mb-4">
+                <MenteeForm
+                  onSaved={() => { setShowMenteeForm(false); fetchMentees() }}
+                  onCancel={() => setShowMenteeForm(false)}
+                />
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {mentees.length === 0 && (
+                <p className="text-gray-400 text-sm text-center py-8">Noch keine Mentees angelegt.</p>
+              )}
+              {mentees.map(mentee => (
+                <div key={mentee.id} className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{mentee.name}</p>
+                    <p className="text-sm text-gray-400">{mentee.email}</p>
+                  </div>
+                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Mentee</span>
                 </div>
               ))}
             </div>
