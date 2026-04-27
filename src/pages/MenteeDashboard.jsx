@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import TaskCard from '../components/TaskCard'
+import WeeklyOverview from '../components/WeeklyOverview'
 
 export default function MenteeDashboard() {
   const { user, profile, signOut } = useAuth()
@@ -82,6 +83,8 @@ export default function MenteeDashboard() {
           <span className="text-sm text-blue-700 font-medium">Heute erledigt</span>
           <span className="text-blue-800 font-bold">{completedCount} / {tasks.length}</span>
         </div>
+
+        <WeeklyOverview userId={user.id} tasks={tasks} />
 
         <div className="space-y-3">
           {tasks.length === 0 && (
