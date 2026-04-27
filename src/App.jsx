@@ -1,16 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { LanguageProvider } from './contexts/LanguageContext'
+import { useLanguage } from './contexts/LanguageContext'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import MenteeDashboard from './pages/MenteeDashboard'
 
 function AppRoutes() {
   const { user, profile, loading } = useAuth()
+  const { t } = useLanguage()
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-500 text-lg">Laden...</div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-400 text-sm">{t('loading')}</div>
       </div>
     )
   }
@@ -35,9 +38,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   )
 }
