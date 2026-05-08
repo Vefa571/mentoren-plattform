@@ -33,13 +33,21 @@ create trigger on_auth_user_created
 
 
 -- 2. Aufgaben-Tabelle
+-- Eine Aufgabe kann ein Seitenziel, ein Minutenziel oder beides haben.
+-- Bei beiden Zielen wählt der Mentee pro Tag, in welcher Einheit er trägt (siehe task_logs.type).
+-- type/target_value bleiben für Altdaten erhalten, sind aber nicht mehr Pflicht.
 create table public.tasks (
   id uuid default gen_random_uuid() primary key,
   title text not null,
-  type text not null check (type in ('pages', 'minutes')),
-  target_value numeric not null check (target_value > 0),
+  type text check (type in ('pages', 'minutes')),
+  target_value numeric check (target_value > 0),
+  target_pages numeric check (target_pages > 0),
+  target_minutes numeric check (target_minutes > 0),
   created_by uuid references public.profiles(id),
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  constraint tasks_at_least_one_target check (
+    target_pages is not null or target_minutes is not null or target_value is not null
+  )
 );
 
 
@@ -53,14 +61,29 @@ create table public.task_hidden (
 
 
 -- 4. Tägliche Einträge
+-- type = 'pages' | 'minutes' — welche Einheit der Mentee an dem Tag genutzt hat
+-- (relevant bei Aufgaben mit beiden Zielen)
 create table public.task_logs (
   id uuid default gen_random_uuid() primary key,
   task_id uuid references public.tasks(id) on delete cascade not null,
   mentee_id uuid references public.profiles(id) on delete cascade not null,
   date date not null,
   value numeric not null check (value >= 0),
+  type text check (type in ('pages', 'minutes')),
   created_at timestamptz default now(),
   unique(task_id, mentee_id, date)
+);
+
+
+-- 5. Legende — vom Admin gepflegte Mindestziel-Liste, unabhängig von tasks
+create table public.legend_entries (
+  id uuid default gen_random_uuid() primary key,
+  label text not null,
+  min_value numeric check (min_value >= 0),
+  unit text check (unit in ('pages', 'minutes', 'count')),
+  sort_order int not null default 0,
+  created_by uuid references public.profiles(id),
+  created_at timestamptz default now()
 );
 
 
@@ -72,6 +95,7 @@ alter table public.profiles enable row level security;
 alter table public.tasks enable row level security;
 alter table public.task_hidden enable row level security;
 alter table public.task_logs enable row level security;
+alter table public.legend_entries enable row level security;
 
 -- Hilfsfunktion: Rolle des aktuellen Users
 create or replace function public.current_role()
@@ -110,3 +134,11 @@ create policy "task_logs: mentee eigene logs" on public.task_logs
 
 create policy "task_logs: admin liest alle" on public.task_logs
   for select using (public.current_role() = 'admin');
+
+
+-- legend_entries: alle eingeloggten lesen; nur Admin schreibt
+create policy "legend: alle eingeloggten lesen" on public.legend_entries
+  for select using (auth.uid() is not null);
+
+create policy "legend: admin schreibt" on public.legend_entries
+  for all using (public.current_role() = 'admin');

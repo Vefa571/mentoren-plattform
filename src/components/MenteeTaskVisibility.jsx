@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/LanguageContext'
+import { getTaskOptions } from '../lib/taskOptions'
 
 export default function MenteeTaskVisibility({ mentee, tasks, onClose }) {
   const { t } = useLanguage()
@@ -42,7 +43,10 @@ export default function MenteeTaskVisibility({ mentee, tasks, onClose }) {
           )}
           {tasks.map(task => {
             const isHidden = hiddenIds.has(task.id)
-            const typeShort = task.type === 'minutes' ? t('type_minutes_short') : t('type_pages_short')
+            const options = getTaskOptions(task)
+            const targetText = options
+              .map(o => `${o.target} ${o.type === 'minutes' ? t('type_minutes_short') : t('type_pages_short')}`)
+              .join(' / ')
             return (
               <button
                 key={task.id}
@@ -54,7 +58,7 @@ export default function MenteeTaskVisibility({ mentee, tasks, onClose }) {
               >
                 <div>
                   <p className="text-sm font-medium">{task.title}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{t('goal')}: {task.target_value} {typeShort}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{t('goal')}: {targetText}</p>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                   isHidden ? 'bg-slate-200 text-slate-500' : 'bg-green-200 text-green-700'

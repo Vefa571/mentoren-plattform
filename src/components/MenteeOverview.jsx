@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/LanguageContext'
 import MenteeTaskVisibility from './MenteeTaskVisibility'
+import { getTaskOptions, resolveLogType, getTargetForType } from '../lib/taskOptions'
 
 function getUsername(email) {
   return email?.replace('@mentoren-plattform.intern', '') ?? email
@@ -24,6 +25,10 @@ export default function MenteeOverview({ mentees, tasks, onInvite }) {
     return logs.find(l => l.mentee_id === menteeId && l.task_id === taskId)
   }
 
+  function shortLabel(type) {
+    return type === 'minutes' ? t('type_minutes_short') : t('type_pages_short')
+  }
+
   if (mentees.length === 0) {
     return (
       <div className="text-center py-16">
@@ -44,8 +49,15 @@ export default function MenteeOverview({ mentees, tasks, onInvite }) {
       )}
       <div className="space-y-3">
         {mentees.map(mentee => {
-          const menteeTaskLogs = tasks.map(task => ({ task, log: getLog(mentee.id, task.id) }))
-          const done = menteeTaskLogs.filter(({ task, log }) => log?.value >= task.target_value).length
+          const taskRows = tasks.map(task => {
+            const log = getLog(mentee.id, task.id)
+            const options = getTaskOptions(task)
+            const logType = log ? resolveLogType(task, log) : null
+            const target = logType ? getTargetForType(task, logType) : null
+            const isDone = log != null && target != null && log.value >= target
+            return { task, log, options, logType, target, isDone }
+          })
+          const done = taskRows.filter(r => r.isDone).length
 
           return (
             <div key={mentee.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
@@ -67,17 +79,17 @@ export default function MenteeOverview({ mentees, tasks, onInvite }) {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {tasks.map(task => {
-                  const log = getLog(mentee.id, task.id)
-                  const progress = log ? Math.min((log.value / task.target_value) * 100, 100) : 0
-                  const isDone = log?.value >= task.target_value
-                  const typeShort = task.type === 'minutes' ? t('type_minutes_short') : t('type_pages_short')
+                {taskRows.map(({ task, log, options, logType, target, isDone }) => {
+                  const progress = log && target != null ? Math.min((log.value / target) * 100, 100) : 0
+                  const targetText = log && target != null
+                    ? `${log.value}/${target} ${shortLabel(logType)}`
+                    : options.map(o => `${o.target} ${shortLabel(o.type)}`).join(' / ') || '–'
                   return (
                     <div key={task.id} className={`rounded-xl px-3 py-2.5 border ${isDone ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-sm text-slate-700 truncate">{task.title}</span>
                         <span className="text-xs text-slate-500 ml-2 shrink-0">
-                          {log ? log.value : '–'}/{task.target_value} {typeShort}
+                          {log ? targetText : `– / ${targetText}`}
                         </span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-1.5">

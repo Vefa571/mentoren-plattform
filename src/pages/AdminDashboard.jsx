@@ -6,6 +6,9 @@ import TaskForm from '../components/TaskForm'
 import MenteeOverview from '../components/MenteeOverview'
 import MenteeForm from '../components/MenteeForm'
 import MenteeEditForm from '../components/MenteeEditForm'
+import MenteeWeeklyTable from '../components/MenteeWeeklyTable'
+import Legend from '../components/Legend'
+import { getTaskOptions } from '../lib/taskOptions'
 
 export default function AdminDashboard() {
   const { profile, signOut } = useAuth()
@@ -18,19 +21,14 @@ export default function AdminDashboard() {
   const [editingMentee, setEditingMentee] = useState(null)
   const [activeTab, setActiveTab] = useState('aufgaben')
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
-  const [historyLogs, setHistoryLogs] = useState([])
-  const [historyLoading, setHistoryLoading] = useState(false)
-
   const TABS = [
     { id: 'aufgaben', label: t('tab_tasks') },
     { id: 'mentees', label: t('tab_mentees') },
     { id: 'uebersicht', label: t('tab_overview') },
-    { id: 'verlauf', label: t('tab_history') },
+    { id: 'tabelle', label: t('tab_table') },
   ]
 
   useEffect(() => { fetchTasks(); fetchMentees() }, [])
-  useEffect(() => { if (activeTab === 'verlauf') fetchHistoryLogs() }, [activeTab, selectedDate])
 
   async function fetchTasks() {
     const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
@@ -40,13 +38,6 @@ export default function AdminDashboard() {
   async function fetchMentees() {
     const { data } = await supabase.from('profiles').select('*').eq('role', 'mentee').order('name')
     setMentees(data ?? [])
-  }
-
-  async function fetchHistoryLogs() {
-    setHistoryLoading(true)
-    const { data } = await supabase.from('task_logs').select('*').eq('date', selectedDate)
-    setHistoryLogs(data ?? [])
-    setHistoryLoading(false)
   }
 
   async function deleteTask(id) {
@@ -59,8 +50,10 @@ export default function AdminDashboard() {
     return type === 'minutes' ? t('type_minutes') : t('type_pages')
   }
 
-  function typeLabelShort(type) {
-    return type === 'minutes' ? t('type_minutes_short') : t('type_pages_short')
+  function formatTaskTargets(task) {
+    const opts = getTaskOptions(task)
+    if (opts.length === 0) return ''
+    return opts.map(o => `${o.target} ${typeLabel(o.type)}`).join(' / ')
   }
 
   function getUsername(email) {
@@ -83,13 +76,7 @@ export default function AdminDashboard() {
     fetchMentees()
   }
 
-  function getHistoryLog(menteeId, taskId) {
-    return historyLogs.find(l => l.mentee_id === menteeId && l.task_id === taskId)
-  }
-
-  const inputClass = 'w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
   const btnPrimary = 'bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm disabled:opacity-50 transition-all'
-  const btnGhost = 'px-4 py-2 rounded-xl text-sm text-slate-600 hover:bg-slate-100 transition-colors'
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -150,7 +137,7 @@ export default function AdminDashboard() {
                 <div key={task.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-slate-800">{task.title}</p>
-                    <p className="text-sm text-slate-400 mt-0.5">{t('goal')}: {task.target_value} {typeLabel(task.type)}</p>
+                    <p className="text-sm text-slate-400 mt-0.5">{t('goal')}: {formatTaskTargets(task)}</p>
                   </div>
                   <div className="flex gap-1">
                     <button onClick={() => { setEditingTask(task); setShowTaskForm(true) }} className="text-sm text-blue-600 hover:text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
@@ -234,67 +221,16 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === 'verlauf' && (
-          <div>
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h2 className="text-base font-semibold text-slate-800">{t('tab_history')}</h2>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={e => setSelectedDate(e.target.value)}
-                className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
-              />
+        {activeTab === 'tabelle' && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-800">{t('table_overview_title')}</h2>
             </div>
-
-            {historyLoading ? (
-              <p className="text-slate-400 text-sm text-center py-10">{t('loading')}</p>
-            ) : mentees.length === 0 ? (
-              <p className="text-slate-400 text-sm text-center py-10">{t('no_mentees')}</p>
-            ) : (
-              <div className="space-y-3">
-                {mentees.map(mentee => {
-                  const doneTasks = tasks.filter(t2 => {
-                    const log = getHistoryLog(mentee.id, t2.id)
-                    return log?.value >= t2.target_value
-                  })
-                  return (
-                    <div key={mentee.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-medium text-slate-800">{mentee.name}</p>
-                          <p className="text-xs text-slate-400">@{getUsername(mentee.email)}</p>
-                        </div>
-                        <span className="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-                          {doneTasks.length}/{tasks.length} {t('done_count')}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {tasks.map(task => {
-                          const log = getHistoryLog(mentee.id, task.id)
-                          const progress = log ? Math.min((log.value / task.target_value) * 100, 100) : 0
-                          const isDone = log?.value >= task.target_value
-                          return (
-                            <div key={task.id} className={`rounded-xl px-3 py-2.5 border ${isDone ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-sm text-slate-700 truncate">{task.title}</span>
-                                <span className="text-xs text-slate-500 ml-2 shrink-0">
-                                  {log ? log.value : '–'}/{task.target_value} {typeLabelShort(task.type)}
-                                </span>
-                              </div>
-                              <div className="w-full bg-slate-200 rounded-full h-1">
-                                <div className={`h-1 rounded-full ${isDone ? 'bg-green-500' : 'bg-blue-400'}`} style={{ width: `${progress}%` }} />
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <Legend editable currentUserId={profile?.id} />
+            <MenteeWeeklyTable mentees={mentees} tasks={tasks} />
           </div>
         )}
+
       </div>
     </div>
   )

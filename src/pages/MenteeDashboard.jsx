@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useLanguage, LangToggle } from '../contexts/LanguageContext'
 import TaskCard from '../components/TaskCard'
 import WeeklyOverview from '../components/WeeklyOverview'
+import Legend from '../components/Legend'
 
 export default function MenteeDashboard() {
   const { user, profile, signOut } = useAuth()
@@ -29,17 +30,25 @@ export default function MenteeDashboard() {
     setLogs(map)
   }
 
-  async function handleLogSave(taskId, value) {
+  async function handleLogSave(taskId, value, type) {
     const existing = logs[taskId]
     if (existing) {
-      await supabase.from('task_logs').update({ value }).eq('id', existing.id)
+      await supabase.from('task_logs').update({ value, type }).eq('id', existing.id)
     } else {
-      await supabase.from('task_logs').insert({ task_id: taskId, mentee_id: user.id, date: today, value })
+      await supabase.from('task_logs').insert({ task_id: taskId, mentee_id: user.id, date: today, value, type })
     }
     fetchTodayLogs()
   }
 
-  const completedCount = tasks.filter(task => logs[task.id]?.value >= task.target_value).length
+  const completedCount = tasks.filter(task => {
+    const log = logs[task.id]
+    if (!log) return false
+    const logType = log.type ?? task.type
+    const target = logType === 'pages'
+      ? (task.target_pages ?? task.target_value)
+      : (task.target_minutes ?? task.target_value)
+    return target != null && log.value >= Number(target)
+  }).length
 
   const TABS = [
     { id: 'heute', label: t('tab_today') },
@@ -93,9 +102,12 @@ export default function MenteeDashboard() {
                   key={task.id}
                   task={task}
                   log={logs[task.id]}
-                  onSave={(value) => handleLogSave(task.id, value)}
+                  onSave={(value, type) => handleLogSave(task.id, value, type)}
                 />
               ))}
+            </div>
+            <div className="mt-6">
+              <Legend />
             </div>
           </>
         )}

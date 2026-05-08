@@ -14,7 +14,7 @@ export const translations = {
     tab_tasks: 'Aufgaben',
     tab_mentees: 'Mentees',
     tab_overview: 'Übersicht',
-    tab_history: 'Verlauf',
+    tab_table: 'Tabelle',
     tab_today: 'Heute',
     tab_week: 'Diese Woche',
 
@@ -33,6 +33,11 @@ export const translations = {
     target_value: 'Zielwert',
     task_placeholder: 'z.B. Koran lesen',
     task_form_error: 'Bitte alle Felder korrekt ausfüllen.',
+    task_form_error_no_target: 'Mindestens ein Ziel (Seiten oder Minuten) angeben.',
+    task_targets: 'Ziele',
+    task_targets_hint: 'Aktiviere eine oder beide Optionen. Bei beiden wählt der Mentee selbst.',
+    progress: 'Fortschritt',
+    completed_label: 'Geschafft!',
 
     save: 'Speichern',
     saving: 'Speichern...',
@@ -81,6 +86,38 @@ export const translations = {
     on_track: 'Auf Kurs',
     daily_goal: 'Ziel pro Tag:',
     expected_today: 'erwartet bis heute:',
+
+    // Mentee-Eingabe
+    enter_value: 'Wert eingeben',
+    remaining_to_goal: 'Noch {n} {unit} bis zum Ziel',
+    exceeded_goal: 'Geschafft (+{n} {unit})',
+
+    // Tabellen-Übersicht (Admin)
+    table_overview_title: 'Wochen-Tabelle',
+    period_start: 'Von',
+    period_end: 'Bis',
+    period_invalid: 'Bitte gültigen Zeitraum wählen.',
+    week_short: 'W',
+    table_no_data: 'Keine Einträge im Zeitraum.',
+    table_mentee_col: 'Mentee',
+
+    // Einheits-Kürzel (in Tabellenzellen)
+    unit_pages_cell: 's',
+    unit_minutes_cell: 'min',
+    unit_count_cell: 'x',
+    type_count: 'Mal',
+    type_count_short: 'x',
+
+    // Legende
+    legend_title: 'Legende',
+    legend_subtitle: 'Mindestziele zur Orientierung',
+    legend_empty: 'Noch keine Einträge in der Legende.',
+    legend_add: '+ Eintrag',
+    legend_label: 'Bezeichnung',
+    legend_min: 'Mindestwert',
+    legend_unit: 'Einheit',
+    legend_label_placeholder: 'z.B. Koran',
+    legend_save_error: 'Bezeichnung und Einheit erforderlich.',
   },
   tr: {
     loading: 'Yükleniyor...',
@@ -97,7 +134,7 @@ export const translations = {
     tab_tasks: 'Görevler',
     tab_mentees: 'Mentiler',
     tab_overview: 'Genel Bakış',
-    tab_history: 'Geçmiş',
+    tab_table: 'Tablo',
     tab_today: 'Bugün',
     tab_week: 'Bu Hafta',
 
@@ -116,6 +153,11 @@ export const translations = {
     target_value: 'Hedef Değer',
     task_placeholder: 'Örn. Kuran oku',
     task_form_error: 'Lütfen tüm alanları doğru doldurun.',
+    task_form_error_no_target: 'En az bir hedef (sayfa veya dakika) belirleyin.',
+    task_targets: 'Hedefler',
+    task_targets_hint: 'Bir veya iki seçeneği etkinleştir. İkisinde de mentee kendi seçer.',
+    progress: 'İlerleme',
+    completed_label: 'Tamamlandı!',
 
     save: 'Kaydet',
     saving: 'Kaydediliyor...',
@@ -164,5 +206,37 @@ export const translations = {
     on_track: 'Yolunda',
     daily_goal: 'Günlük hedef:',
     expected_today: 'bugüne kadar beklenen:',
+
+    // Mentee girişi
+    enter_value: 'Değer gir',
+    remaining_to_goal: 'Hedefe {n} {unit} kaldı',
+    exceeded_goal: 'Tamamlandı (+{n} {unit})',
+
+    // Tablo görünümü (Admin)
+    table_overview_title: 'Haftalık Tablo',
+    period_start: 'Başlangıç',
+    period_end: 'Bitiş',
+    period_invalid: 'Lütfen geçerli bir aralık seçin.',
+    week_short: 'H',
+    table_no_data: 'Bu aralıkta kayıt yok.',
+    table_mentee_col: 'Mentee',
+
+    // Birim kısaltmaları (tablo hücreleri)
+    unit_pages_cell: 's',
+    unit_minutes_cell: 'dk',
+    unit_count_cell: 'x',
+    type_count: 'Defa',
+    type_count_short: 'x',
+
+    // Açıklama (Legende)
+    legend_title: 'Açıklama',
+    legend_subtitle: 'Yönlendirme için asgari hedefler',
+    legend_empty: 'Henüz açıklama girişi yok.',
+    legend_add: '+ Giriş',
+    legend_label: 'Tanım',
+    legend_min: 'Asgari değer',
+    legend_unit: 'Birim',
+    legend_label_placeholder: 'Örn. Kuran',
+    legend_save_error: 'Tanım ve birim zorunludur.',
   },
 }
