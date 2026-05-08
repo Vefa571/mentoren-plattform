@@ -93,6 +93,9 @@ export default function MenteeDashboard() {
               <span className="text-sm text-blue-700 font-medium">{t('today_done')}</span>
               <span className="text-blue-800 font-bold text-lg">{completedCount} / {tasks.length}</span>
             </div>
+            <div className="mb-5">
+              <Legend />
+            </div>
             <div className="space-y-3">
               {tasks.length === 0 && (
                 <p className="text-slate-400 text-sm text-center py-10">{t('no_tasks_assigned')}</p>
@@ -105,9 +108,6 @@ export default function MenteeDashboard() {
                   onSave={(value, type) => handleLogSave(task.id, value, type)}
                 />
               ))}
-            </div>
-            <div className="mt-6">
-              <Legend />
             </div>
           </>
         )}
