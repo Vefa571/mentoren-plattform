@@ -76,9 +76,14 @@ create table public.task_logs (
 
 
 -- 5. Legende — vom Admin gepflegte Mindestziel-Liste, unabhängig von tasks
+-- Jede Zeile kann unabhängig Werte für Seiten / Minuten / Mal setzen.
+-- min_value + unit sind Legacy-Spalten aus der ersten Version, bleiben nullable.
 create table public.legend_entries (
   id uuid default gen_random_uuid() primary key,
   label text not null,
+  min_pages numeric check (min_pages >= 0),
+  min_minutes numeric check (min_minutes >= 0),
+  min_count numeric check (min_count >= 0),
   min_value numeric check (min_value >= 0),
   unit text check (unit in ('pages', 'minutes', 'count')),
   sort_order int not null default 0,

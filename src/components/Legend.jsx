@@ -2,18 +2,25 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/LanguageContext'
 
-const UNITS = ['pages', 'minutes', 'count']
+const EMPTY_DRAFT = { label: '', min_pages: '', min_minutes: '', min_count: '' }
 
-function unitLabel(t, unit) {
-  if (unit === 'minutes') return t('type_minutes')
-  if (unit === 'count') return t('type_count')
-  return t('type_pages')
+function parseNum(s) {
+  if (s === '' || s === null || s === undefined) return null
+  const n = Number(s)
+  return Number.isFinite(n) && n >= 0 ? n : null
 }
 
-function unitCell(t, unit) {
-  if (unit === 'minutes') return t('unit_minutes_cell')
-  if (unit === 'count') return t('unit_count_cell')
-  return t('unit_pages_cell')
+// Legacy-Eintrag (nur min_value + unit) → in min_pages/_minutes/_count auflösen
+function effectiveMins(entry) {
+  let pages = entry.min_pages
+  let minutes = entry.min_minutes
+  let count = entry.min_count
+  if (pages == null && minutes == null && count == null && entry.min_value != null) {
+    if (entry.unit === 'pages') pages = entry.min_value
+    else if (entry.unit === 'minutes') minutes = entry.min_value
+    else if (entry.unit === 'count') count = entry.min_value
+  }
+  return { pages, minutes, count }
 }
 
 export default function Legend({ editable = false, currentUserId = null }) {
@@ -22,7 +29,7 @@ export default function Legend({ editable = false, currentUserId = null }) {
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [draft, setDraft] = useState({ label: '', min_value: '', unit: 'pages' })
+  const [draft, setDraft] = useState(EMPTY_DRAFT)
   const [error, setError] = useState('')
 
   useEffect(() => { fetchEntries() }, [])
@@ -40,7 +47,7 @@ export default function Legend({ editable = false, currentUserId = null }) {
   function openAdd() {
     setError('')
     setEditingId(null)
-    setDraft({ label: '', min_value: '', unit: 'pages' })
+    setDraft(EMPTY_DRAFT)
     setAdding(true)
   }
 
@@ -48,10 +55,12 @@ export default function Legend({ editable = false, currentUserId = null }) {
     setError('')
     setAdding(false)
     setEditingId(entry.id)
+    const eff = effectiveMins(entry)
     setDraft({
       label: entry.label,
-      min_value: entry.min_value != null ? String(entry.min_value) : '',
-      unit: entry.unit ?? 'pages',
+      min_pages: eff.pages != null ? String(eff.pages) : '',
+      min_minutes: eff.minutes != null ? String(eff.minutes) : '',
+      min_count: eff.count != null ? String(eff.count) : '',
     })
   }
 
@@ -62,15 +71,21 @@ export default function Legend({ editable = false, currentUserId = null }) {
   }
 
   async function save() {
-    if (!draft.label.trim() || !draft.unit) {
+    const pages = parseNum(draft.min_pages)
+    const minutes = parseNum(draft.min_minutes)
+    const count = parseNum(draft.min_count)
+    if (!draft.label.trim() || (pages == null && minutes == null && count == null)) {
       setError(t('legend_save_error'))
       return
     }
-    const minVal = draft.min_value === '' ? null : Number(draft.min_value)
     const payload = {
       label: draft.label.trim(),
-      min_value: Number.isFinite(minVal) ? minVal : null,
-      unit: draft.unit,
+      min_pages: pages,
+      min_minutes: minutes,
+      min_count: count,
+      // Legacy-Felder leeren, damit Anzeige eindeutig ist
+      min_value: null,
+      unit: null,
     }
     if (editingId) {
       await supabase.from('legend_entries').update(payload).eq('id', editingId)
@@ -116,33 +131,29 @@ export default function Legend({ editable = false, currentUserId = null }) {
 
       {showForm && (
         <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
-            <input
-              type="text"
-              placeholder={t('legend_label_placeholder')}
-              value={draft.label}
-              onChange={e => setDraft({ ...draft, label: e.target.value })}
-              className="sm:col-span-5 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+          <input
+            type="text"
+            placeholder={t('legend_label_placeholder')}
+            value={draft.label}
+            onChange={e => setDraft({ ...draft, label: e.target.value })}
+            className="w-full px-3 py-2 mb-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+          />
+          <div className="grid grid-cols-3 gap-2">
+            <NumField
+              label={t('type_pages')}
+              value={draft.min_pages}
+              onChange={v => setDraft({ ...draft, min_pages: v })}
             />
-            <input
-              type="number"
-              inputMode="decimal"
-              min="0"
-              step="any"
-              placeholder={t('legend_min')}
-              value={draft.min_value}
-              onChange={e => setDraft({ ...draft, min_value: e.target.value })}
-              className="sm:col-span-3 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+            <NumField
+              label={t('type_minutes')}
+              value={draft.min_minutes}
+              onChange={v => setDraft({ ...draft, min_minutes: v })}
             />
-            <select
-              value={draft.unit}
-              onChange={e => setDraft({ ...draft, unit: e.target.value })}
-              className="sm:col-span-4 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white"
-            >
-              {UNITS.map(u => (
-                <option key={u} value={u}>{unitLabel(t, u)}</option>
-              ))}
-            </select>
+            <NumField
+              label={t('type_count')}
+              value={draft.min_count}
+              onChange={v => setDraft({ ...draft, min_count: v })}
+            />
           </div>
           {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
           <div className="flex justify-end gap-2 mt-3">
@@ -170,43 +181,67 @@ export default function Legend({ editable = false, currentUserId = null }) {
             <thead>
               <tr className="text-xs text-slate-500 border-b border-slate-200">
                 <th className="text-left font-medium py-2 pr-3">{t('legend_label')}</th>
-                <th className="text-left font-medium py-2 pr-3">{t('legend_min')}</th>
-                <th className="text-left font-medium py-2 pr-3">{t('legend_unit')}</th>
+                <th className="text-center font-medium py-2 px-2">{t('type_pages')}</th>
+                <th className="text-center font-medium py-2 px-2">{t('type_minutes')}</th>
+                <th className="text-center font-medium py-2 px-2">{t('type_count')}</th>
                 {editable && <th className="py-2 w-20"></th>}
               </tr>
             </thead>
             <tbody>
-              {entries.map(entry => (
-                <tr key={entry.id} className="border-b border-slate-100 last:border-0">
-                  <td className="py-2.5 pr-3 text-slate-800">{entry.label}</td>
-                  <td className="py-2.5 pr-3 text-slate-700 font-medium">
-                    {entry.min_value != null ? entry.min_value : '–'}
-                  </td>
-                  <td className="py-2.5 pr-3 text-slate-600">
-                    {unitLabel(t, entry.unit)} <span className="text-slate-400 text-xs">({unitCell(t, entry.unit)})</span>
-                  </td>
-                  {editable && (
-                    <td className="py-2 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => openEdit(entry)}
-                        className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
-                      >
-                        {t('edit')}
-                      </button>
-                      <button
-                        onClick={() => remove(entry.id)}
-                        className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                      >
-                        {t('delete')}
-                      </button>
+              {entries.map(entry => {
+                const eff = effectiveMins(entry)
+                return (
+                  <tr key={entry.id} className="border-b border-slate-100 last:border-0">
+                    <td className="py-2.5 pr-3 text-slate-800">{entry.label}</td>
+                    <td className="py-2.5 px-2 text-center text-slate-700 font-medium">
+                      {eff.pages != null ? eff.pages : <span className="text-slate-300">–</span>}
                     </td>
-                  )}
-                </tr>
-              ))}
+                    <td className="py-2.5 px-2 text-center text-slate-700 font-medium">
+                      {eff.minutes != null ? eff.minutes : <span className="text-slate-300">–</span>}
+                    </td>
+                    <td className="py-2.5 px-2 text-center text-slate-700 font-medium">
+                      {eff.count != null ? eff.count : <span className="text-slate-300">–</span>}
+                    </td>
+                    {editable && (
+                      <td className="py-2 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => openEdit(entry)}
+                          className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                        >
+                          {t('edit')}
+                        </button>
+                        <button
+                          onClick={() => remove(entry.id)}
+                          className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                        >
+                          {t('delete')}
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       )}
     </div>
+  )
+}
+
+function NumField({ label, value, onChange }) {
+  return (
+    <label className="block">
+      <span className="block text-[11px] text-slate-500 mb-0.5">{label}</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        min="0"
+        step="any"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white"
+      />
+    </label>
   )
 }

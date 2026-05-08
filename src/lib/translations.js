@@ -117,7 +117,7 @@ export const translations = {
     legend_min: 'Mindestwert',
     legend_unit: 'Einheit',
     legend_label_placeholder: 'z.B. Koran',
-    legend_save_error: 'Bezeichnung und Einheit erforderlich.',
+    legend_save_error: 'Bezeichnung und mindestens ein Mindestwert erforderlich.',
   },
   tr: {
     loading: 'Yükleniyor...',
@@ -237,6 +237,6 @@ export const translations = {
     legend_min: 'Asgari değer',
     legend_unit: 'Birim',
     legend_label_placeholder: 'Örn. Kuran',
-    legend_save_error: 'Tanım ve birim zorunludur.',
+    legend_save_error: 'Tanım ve en az bir asgari değer gereklidir.',
   },
 }
