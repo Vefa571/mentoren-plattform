@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className={`${activeTab === 'tabelle' ? 'max-w-none' : 'max-w-4xl'} mx-auto px-4 py-6`}>
         <div className="flex gap-1.5 mb-6 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm w-fit">
           {TABS.map(tab => (
             <button

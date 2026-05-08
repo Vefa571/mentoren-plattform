@@ -116,28 +116,28 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-wrap items-end gap-3">
+    <div className="space-y-3">
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-3 flex flex-wrap items-end gap-2">
         <div>
-          <label className="block text-xs text-slate-500 mb-1">{t('period_start')}</label>
+          <label className="block text-[11px] text-slate-500 mb-0.5">{t('period_start')}</label>
           <input
             type="date"
             value={start}
             onChange={e => setRange(r => ({ ...r, start: e.target.value }))}
-            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+            className="px-2 py-1.5 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500"
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">{t('period_end')}</label>
+          <label className="block text-[11px] text-slate-500 mb-0.5">{t('period_end')}</label>
           <input
             type="date"
             value={end}
             onChange={e => setRange(r => ({ ...r, end: e.target.value }))}
-            className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+            className="px-2 py-1.5 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500"
           />
         </div>
         {!validRange && (
-          <p className="text-sm text-red-500">{t('period_invalid')}</p>
+          <p className="text-xs text-red-500">{t('period_invalid')}</p>
         )}
       </div>
 
@@ -145,13 +145,13 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
         mentees.length === 0 || tasks.length === 0 ? (
           <p className="text-slate-400 text-sm text-center py-10">{t('table_no_data')}</p>
         ) : (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="border-b border-slate-200">
                   <th
                     rowSpan={2}
-                    className="sticky left-0 z-10 bg-white text-left font-semibold text-slate-700 px-4 py-2 border-r border-slate-200 align-bottom"
+                    className="sticky left-0 z-10 bg-white text-left font-semibold text-slate-700 px-2 py-1.5 border-r border-slate-200 align-bottom"
                   >
                     {t('table_mentee_col')}
                   </th>
@@ -159,7 +159,7 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
                     <th
                       key={task.id}
                       colSpan={weeks.length}
-                      className="text-center font-semibold text-slate-700 px-3 py-2 border-l border-slate-200"
+                      className="text-center font-semibold text-slate-700 px-2 py-1.5 border-l border-slate-200"
                     >
                       {task.title}
                     </th>
@@ -170,7 +170,7 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
                     weeks.map(yw => (
                       <th
                         key={`${task.id}-${weekKey(yw)}`}
-                        className="text-center text-xs font-medium text-slate-500 px-3 py-1.5 border-l border-slate-200 whitespace-nowrap"
+                        className="text-center text-[11px] font-medium text-slate-500 px-1.5 py-1 border-l border-slate-200 whitespace-nowrap"
                       >
                         {t('week_short')}{yw.week}
                       </th>
@@ -181,15 +181,15 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
               <tbody>
                 {mentees.map(mentee => (
                   <tr key={mentee.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
-                    <td className="sticky left-0 z-10 bg-white hover:bg-slate-50/50 px-4 py-2.5 border-r border-slate-200 whitespace-nowrap">
-                      <p className="font-medium text-slate-800">{mentee.name}</p>
-                      <p className="text-xs text-slate-400">@{getUsername(mentee.email)}</p>
+                    <td className="sticky left-0 z-10 bg-white hover:bg-slate-50/50 px-2 py-1.5 border-r border-slate-200 whitespace-nowrap">
+                      <p className="font-medium text-slate-800 leading-tight">{mentee.name}</p>
+                      <p className="text-[10px] text-slate-400 leading-tight">@{getUsername(mentee.email)}</p>
                     </td>
                     {tasks.map(task =>
                       weeks.map(yw => (
                         <td
                           key={`${mentee.id}-${task.id}-${weekKey(yw)}`}
-                          className="text-center px-3 py-2.5 border-l border-slate-200 whitespace-nowrap"
+                          className="text-center px-1.5 py-1 border-l border-slate-200 whitespace-nowrap"
                         >
                           {renderCell(mentee.id, task.id, weekKey(yw))}
                         </td>
@@ -199,7 +199,7 @@ export default function MenteeWeeklyTable({ mentees, tasks }) {
                 ))}
               </tbody>
             </table>
-            {loading && <p className="text-xs text-slate-400 text-center py-2">{t('loading')}</p>}
+            {loading && <p className="text-[11px] text-slate-400 text-center py-1.5">{t('loading')}</p>}
           </div>
         )
       )}
