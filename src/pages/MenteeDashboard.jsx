@@ -57,7 +57,7 @@ export default function MenteeDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 shadow-sm px-6 py-4 flex items-center justify-between">
+      <header className="bg-white border-b border-slate-200 shadow-sm px-3 sm:px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold text-slate-800">{t('my_tasks')}</h1>
           <p className="text-xs text-slate-400 mt-0.5">{profile?.name} · {today}</p>
@@ -145,13 +145,13 @@ export default function MenteeDashboard() {
                 </g>
 
                 <text x="365" y="80" fontFamily="system-ui, sans-serif" fontSize="26" fontWeight="700" fill="#1e293b">
-                  Auf geht's!
+                  {t('banner_mentee_title')}
                 </text>
                 <text x="365" y="108" fontFamily="system-ui, sans-serif" fontSize="14" fill="#64748b">
-                  Heute schon was abgehakt?
+                  {t('banner_mentee_sub')}
                 </text>
                 <text x="365" y="138" fontFamily="system-ui, sans-serif" fontSize="13" fontStyle="italic" fill="#f59e0b">
-                  Tipp: Schritt fuer Schritt — du schaffst das!
+                  {t('banner_mentee_tip')}
                 </text>
               </svg>
             </div>

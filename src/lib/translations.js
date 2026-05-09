@@ -81,6 +81,11 @@ export const translations = {
     no_tasks_assigned: 'Keine Aufgaben zugewiesen.',
     task_done_badge: '✓ Erledigt',
 
+    // Mentee-Banner (SVG, Heute-Tab)
+    banner_mentee_title: "Auf geht's!",
+    banner_mentee_sub: 'Heute schon was abgehakt?',
+    banner_mentee_tip: 'Tipp: Schritt für Schritt — du schaffst das!',
+
     this_week: 'Diese Woche',
     of_7_days: 'von 7 Tagen',
     on_track: 'Auf Kurs',
@@ -200,6 +205,11 @@ export const translations = {
     today_done: 'Bugün Tamamlandı',
     no_tasks_assigned: 'Görev atanmamış.',
     task_done_badge: '✓ Tamamlandı',
+
+    // Mentee Banner (SVG, Bugün sekmesi)
+    banner_mentee_title: 'Hadi başlayalım!',
+    banner_mentee_sub: 'Bugün bir şey tamamladın mı?',
+    banner_mentee_tip: 'İpucu: Adım adım — başarabilirsin!',
 
     this_week: 'Bu Hafta',
     of_7_days: '/ 7 gün',
