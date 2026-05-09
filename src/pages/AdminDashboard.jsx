@@ -80,12 +80,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 shadow-sm px-3 sm:px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">{t('platform')}</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Admin: {profile?.name}</p>
+      <header className="bg-white border-b border-slate-200 shadow-sm px-3 sm:px-6 py-4 flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg font-bold text-slate-800 truncate">{t('platform')}</h1>
+          <p className="text-xs text-slate-400 mt-0.5 truncate">Admin: {profile?.name}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <LangToggle />
           <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
             {t('logout')}
@@ -134,12 +134,12 @@ export default function AdminDashboard() {
                 <p className="text-slate-400 text-sm text-center py-10">{t('no_tasks')}</p>
               )}
               {tasks.map(task => (
-                <div key={task.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-slate-800">{task.title}</p>
-                    <p className="text-sm text-slate-400 mt-0.5">{t('goal')}: {formatTaskTargets(task)}</p>
+                <div key={task.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-800 break-words">{task.title}</p>
+                    <p className="text-sm text-slate-400 mt-0.5 break-words">{t('goal')}: {formatTaskTargets(task)}</p>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 shrink-0">
                     <button onClick={() => { setEditingTask(task); setShowTaskForm(true) }} className="text-sm text-blue-600 hover:text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
                       {t('edit')}
                     </button>
@@ -184,12 +184,12 @@ export default function AdminDashboard() {
                       onCancel={() => setEditingMentee(null)}
                     />
                   ) : (
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-slate-800">{mentee.name}</p>
-                        <p className="text-sm text-slate-400">@{getUsername(mentee.email)}</p>
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-slate-800 break-words">{mentee.name}</p>
+                        <p className="text-sm text-slate-400 break-words">@{getUsername(mentee.email)}</p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 shrink-0">
                         <button onClick={() => { setShowMenteeForm(false); setEditingMentee(mentee) }} className="text-sm text-amber-600 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-colors">
                           {t('edit')}
                         </button>

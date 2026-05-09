@@ -57,12 +57,12 @@ export default function MenteeDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 shadow-sm px-3 sm:px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">{t('my_tasks')}</h1>
-          <p className="text-xs text-slate-400 mt-0.5">{profile?.name} · {today}</p>
+      <header className="bg-white border-b border-slate-200 shadow-sm px-3 sm:px-6 py-4 flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg font-bold text-slate-800 truncate">{t('my_tasks')}</h1>
+          <p className="text-xs text-slate-400 mt-0.5 truncate">{profile?.name} · {today}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <LangToggle />
           <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
             {t('logout')}
@@ -90,7 +90,7 @@ export default function MenteeDashboard() {
         {activeTab === 'heute' && (
           <>
             <div className="mb-5 rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50">
-              <svg viewBox="0 0 800 180" className="w-full h-32 md:h-40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <svg viewBox="0 0 800 180" width="100%" preserveAspectRatio="xMidYMid meet" className="block w-full h-32 md:h-40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
                   <radialGradient id="sun-mentee" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stopColor="#fde68a" />

@@ -7,7 +7,18 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
-  body {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
+  }
+  body {
+    position: relative;
+  }
+  /* SVGs mit viewBox sollen nie ueber ihre Container hinaus rendern */
+  svg {
+    max-width: 100%;
   }
 }
