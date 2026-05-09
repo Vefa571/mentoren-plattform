@@ -21,4 +21,13 @@
   svg {
     max-width: 100%;
   }
+  /* iOS Safari zoomt automatisch rein, wenn ein Input < 16px Schrift hat.
+     Auf Mobile (<= 768px) erzwingen wir 16px fuer alle Eingaben. */
+  @media (max-width: 768px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
 }
