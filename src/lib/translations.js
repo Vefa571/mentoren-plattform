@@ -109,7 +109,7 @@ export const translations = {
     type_count_short: 'x',
 
     // Legende
-    legend_title: 'Legende',
+    legend_title: 'Wöchentliche Ziele',
     legend_subtitle: 'Mindestziele zur Orientierung',
     legend_empty: 'Noch keine Einträge in der Legende.',
     legend_add: '+ Eintrag',
@@ -229,7 +229,7 @@ export const translations = {
     type_count_short: 'x',
 
     // Açıklama (Legende)
-    legend_title: 'Açıklama',
+    legend_title: 'Haftalık Hedefler',
     legend_subtitle: 'Yönlendirme için asgari hedefler',
     legend_empty: 'Henüz açıklama girişi yok.',
     legend_add: '+ Giriş',
